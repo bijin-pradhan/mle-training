@@ -1,5 +1,6 @@
 import os
 import tarfile
+<<<<<<< HEAD
 
 import numpy as np
 import pandas as pd
@@ -16,6 +17,25 @@ from sklearn.model_selection import (
     train_test_split,
 )
 from sklearn.tree import DecisionTreeRegressor
+=======
+
+import numpy as np
+import pandas as pd
+from six.moves import urllib
+
+from scipy.stats import randint
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV
+>>>>>>> cd4aac492ce60c15a73e004b483b54b2ab2018c7
 
 DOWNLOAD_ROOT = "https://raw.githubusercontent.com/ageron/handson-ml/master/"
 HOUSING_PATH = os.path.join("datasets", "housing")
@@ -86,6 +106,7 @@ housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.1)
 
 corr_matrix = housing.corr()
 corr_matrix["median_house_value"].sort_values(ascending=False)
+<<<<<<< HEAD
 housing["rooms_per_household"] = housing["total_rooms"] / housing["households"]
 housing["bedrooms_per_room"] = (
     housing["total_bedrooms"] / housing["total_rooms"]
@@ -93,6 +114,14 @@ housing["bedrooms_per_room"] = (
 housing["population_per_household"] = (
     housing["population"] / housing["households"]
 )
+=======
+housing["rooms_per_household"] = housing["total_rooms"] / \
+    housing["households"]
+housing["bedrooms_per_room"] = housing["total_bedrooms"] / \
+    housing["total_rooms"]
+housing["population_per_household"] = housing["population"] / \
+    housing["households"]
+>>>>>>> cd4aac492ce60c15a73e004b483b54b2ab2018c7
 
 housing = strat_train_set.drop(
     "median_house_value", axis=1
@@ -108,9 +137,14 @@ imputer.fit(housing_num)
 X = imputer.transform(housing_num)
 
 housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing.index)
+<<<<<<< HEAD
 housing_tr["rooms_per_household"] = (
     housing_tr["total_rooms"] / housing_tr["households"]
 )
+=======
+housing_tr["rooms_per_household"] = housing_tr["total_rooms"] / \
+    housing_tr["households"]
+>>>>>>> cd4aac492ce60c15a73e004b483b54b2ab2018c7
 housing_tr["bedrooms_per_room"] = (
     housing_tr["total_bedrooms"] / housing_tr["total_rooms"]
 )
@@ -119,9 +153,14 @@ housing_tr["population_per_household"] = (
 )
 
 housing_cat = housing[["ocean_proximity"]]
+<<<<<<< HEAD
 housing_prepared = housing_tr.join(
     pd.get_dummies(housing_cat, drop_first=True)
 )
+=======
+housing_prepared = housing_tr.join(pd.get_dummies(
+    housing_cat, drop_first=True))
+>>>>>>> cd4aac492ce60c15a73e004b483b54b2ab2018c7
 
 
 lin_reg = LinearRegression()
@@ -216,8 +255,12 @@ X_test_prepared["population_per_household"] = (
 
 X_test_cat = X_test[["ocean_proximity"]]
 X_test_prepared = X_test_prepared.join(
+<<<<<<< HEAD
     pd.get_dummies(X_test_cat, drop_first=True)
 )
+=======
+    pd.get_dummies(X_test_cat, drop_first=True))
+>>>>>>> cd4aac492ce60c15a73e004b483b54b2ab2018c7
 
 
 final_predictions = final_model.predict(X_test_prepared)
