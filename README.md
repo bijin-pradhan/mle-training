@@ -19,6 +19,7 @@ Prerequisite dependencies are stored in `deploy/conda/linux_cpu/py39.yml`. To se
 ### Setup:
 For editable install:
 `$ pip install -e .`
+
 For normal install:
 `$ pip install .`
 
