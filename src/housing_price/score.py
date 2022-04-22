@@ -19,7 +19,7 @@ def parse_args():
         "-m",
         "--models",
         type=str,
-        default="artifacts",
+        default="artifacts/",
         help="Directory where the models are stored.",
     )
 
@@ -65,21 +65,20 @@ def score_model(
     X: pd.DataFrame,
     y: pd.DataFrame,
     args: Namespace,
-    logger: Logger,
 ):
-    model_name = type(model).__name__
-    logger.debug(f"Model: {model_name}")
-    logger.debug(f"R2 score: {model.score(X, y)}")
-
+    scores = {}
+    scores["R2 score"] = model.score(X, y)
     y_hat = model.predict(X)
 
     if args.rmse:
         rmse = np.sqrt(mean_squared_error(y, y_hat))
-        logger.debug(f"Root Mean Squared Error: {rmse}")
+        scores["RMSE"] = rmse
 
     if args.mae:
         mae = mean_absolute_error(y, y_hat)
-        logger.debug(f"Mean Absolute Error: {mae}")
+        scores["MAE"] = mae
+
+    return scores
 
 
 def run(args: Namespace, logger: Logger):
@@ -88,7 +87,11 @@ def run(args: Namespace, logger: Logger):
     models = load_models(args.models)
 
     for model in models:
-        score_model(model, X, y, args, logger)
+        model_name = type(model).__name__
+        scores = score_model(model, X, y, args)
+        logger.debug(f"Model: {model_name}")
+        for k, v in scores.items():
+            logger.debug(f"{k}: {v}")
 
 
 if __name__ == "__main__":
