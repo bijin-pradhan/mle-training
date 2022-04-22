@@ -1,3 +1,7 @@
+"""
+This module contains helper functions to score the models.
+Can be run standalone with commandline arguments for models and the datasets to score them on.
+"""
 import os
 import pickle
 from argparse import ArgumentParser, Namespace
@@ -12,7 +16,20 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from housing_price.logger import configure_logger
 
 
-def parse_args():
+def parse_args() -> Namespace:
+    """Commandline argument parser for standalone run.
+
+    Returns
+    -------
+    arparse.Namespace
+        Commandline arguments. Contains keys: ["models": str,
+         "dataset": str,
+         "rmse": bool,
+         "mae": bool,
+         "log_level": str,
+         "no_console_log": bool,
+         "log_path": str]
+    """
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -41,14 +58,41 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_data(path: str):
+def load_data(path: str) -> tuple[pd.DataFrame, pd.Series]:
+    """
+    Loads dataset and splits features and labels.
+
+    Parameters
+    ----------
+    path : str
+        Path to training dataset csv file.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.Series]
+        Index 0 is the testing features dataframe.
+        Index 1 is the testing labels series.
+    """
     df = pd.read_csv(path)
     y = df["median_house_value"].copy(deep=True)
     X = df.drop(["median_house_value"], axis=1)
-    return X, y
+    return (X, y)
 
 
-def load_models(path: str):
+def load_models(path: str) -> list[sklearn.base.BaseEstimator]:
+    """
+    Loads models from given directory path.
+
+    Parameters
+    ----------
+    path : str
+        Path to directory with model pkl files.
+
+    Returns
+    -------
+    list[sklearn.base.BaseEstimator]
+        List of models loaded from pkl files in directory.
+    """
     paths = glob(f"{path}/*.pkl")
     models = []
 
@@ -63,9 +107,29 @@ def load_models(path: str):
 def score_model(
     model: sklearn.base.BaseEstimator,
     X: pd.DataFrame,
-    y: pd.DataFrame,
+    y: pd.Series,
     args: Namespace,
-):
+) -> dict:
+    """
+    Scores given model on given data.
+
+    Parameters
+    ----------
+    model : sklearn.base.BaseEstimator
+        Estimator to score.
+    X : pd.DataFrame
+        Input features dataframe.
+    y : pd.Series
+        Ground truth labels.
+    args : Namespace
+        Command line arguments. Used to determine which scores to calculate.
+
+    Returns
+    -------
+    dict
+        Contains calculated scores.
+
+    """
     scores = {}
     scores["R2 score"] = model.score(X, y)
     y_hat = model.predict(X)
@@ -81,7 +145,17 @@ def score_model(
     return scores
 
 
-def run(args: Namespace, logger: Logger):
+def run(args: Namespace, logger: Logger) -> None:
+    """
+    Runs the whole scoring process according to the given commandline arguments.
+
+    Parameters
+    ----------
+    args : Namespace
+        Commandline arguments from parse_args.
+    logger : Logger
+        Logs the outputs.
+    """
     X, y = load_data(args.dataset)
 
     models = load_models(args.models)

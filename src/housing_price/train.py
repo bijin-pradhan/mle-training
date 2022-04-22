@@ -1,3 +1,7 @@
+"""
+This module contains helper functions to train models.
+Can be run standalone with commandline arguments for dataset path and models directory.
+    """
 import os
 import pickle
 from argparse import ArgumentParser, Namespace
@@ -13,7 +17,18 @@ from sklearn.tree import DecisionTreeRegressor
 from housing_price.logger import configure_logger
 
 
-def parse_args():
+def parse_args() -> Namespace:
+    """Commandline argument parser for standalone run.
+
+    Returns
+    -------
+    arparse.Namespace
+        Commandline arguments. Contains keys: ["models": str,
+         "dataset": str,
+         "log_level": str,
+         "no_console_log": bool,
+         "log_path": str]
+    """
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -39,33 +54,77 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_data(path: str):
+def load_data(path: str) -> tuple[pd.DataFrame, pd.Series]:
+    """
+    Loads dataset and splits features and labels.
+
+    Parameters
+    ----------
+    path : str
+        Path to training dataset csv file.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.Series]
+        Index 0 is the training features dataframe.
+        Index 1 is the training labels series.
+    """
     df = pd.read_csv(path)
     y = df["median_house_value"].copy(deep=True)
     X = df.drop(["median_house_value"], axis=1)
-    return X, y
+    return (X, y)
 
 
-def save_model(model: sklearn.base.BaseEstimator, path: str, logger: Logger):
+def save_model(
+    model: sklearn.base.BaseEstimator, path: str
+) -> tuple[str, str]:
+    """
+    Saves the given model in given directory as pickle file.
+
+    Parameters
+    ----------
+    model : sklearn.base.BaseEstimator
+        Estimator to save.
+    path : str
+        Directory to save in.
+
+    Returns
+    -------
+    tuple[str, str]
+        Index 0 is the name of the model.
+        Index 1 is the path it is saved in.
+    """
     model_name = type(model).__name__
     path = os.path.join(path, f"{model_name}.pkl")
-    logger.debug(f"{model_name} model saved in {path}.")
     with open(path, "wb") as file:
         pickle.dump(model, file)
+    return (model_name, path)
 
 
-def run(args: Namespace, logger: Logger):
+def run(args: Namespace, logger: Logger) -> None:
+    """
+    Runs the whole training process according to given commandline arguments.
+
+    Parameters
+    ----------
+    args : Namespace
+        Commandline arguments from parse_args.
+    logger : Logger
+        Logs the outputs.
+    """
     logger.info("Started training.")
 
     X, y = load_data(args.dataset)
 
     lr = LinearRegression()
     lr.fit(X, y)
-    save_model(lr, args.models, logger)
+    model_name, path = save_model(lr, args.models)
+    logger.debug(f"{model_name} model saved in {path}.")
 
     dtree = DecisionTreeRegressor(random_state=42)
     dtree.fit(X, y)
-    save_model(dtree, args.models, logger)
+    model_name, path = save_model(dtree, args.models)
+    logger.debug(f"{model_name} model saved in {path}.")
 
     random_forest = RandomForestRegressor()
     param_grid = [
@@ -86,7 +145,8 @@ def run(args: Namespace, logger: Logger):
         return_train_score=True,
     )
     grid_search.fit(X, y)
-    save_model(grid_search.best_estimator_, args.models, logger)
+    model_name, path = save_model(grid_search.best_estimator_, args.models)
+    logger.debug(f"{model_name} model saved in {path}.")
 
     logger.info("Done training.")
 

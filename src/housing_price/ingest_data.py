@@ -1,3 +1,7 @@
+"""
+This module contains helper functions for ingestion of data.
+Running this standalone downloads the housing data and stores preprocessed copies of it in the specified folders.
+"""
 import os
 import tarfile
 from argparse import ArgumentParser, Namespace
@@ -12,7 +16,18 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from housing_price.logger import configure_logger
 
 
-def parse_args():
+def parse_args() -> Namespace:
+    """Commandline argument parser for standalone run.
+
+    Returns
+    -------
+    arparse.Namespace
+        Commandline arguments. Contains keys: ["raw": str,
+         "processed": str,
+         "log_level": str,
+         "no_console_log": bool,
+         "log_path": str]
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "-r",
@@ -34,7 +49,17 @@ def parse_args():
     return parser.parse_args()
 
 
-def fetch_housing_data(housing_url: str, housing_path: str):
+def fetch_housing_data(housing_url: str, housing_path: str) -> None:
+    """
+    Function to download and extract housing data.
+
+    Parameters
+    ----------
+    housing_url : str
+        Url to download the housing data from.
+    housing_path : str
+        Path to store the raw csv files after extraction.
+    """
     os.makedirs(housing_path, exist_ok=True)
     tgz_path = os.path.join(housing_path, "housing.tgz")
     urllib.request.urlretrieve(housing_url, tgz_path)
@@ -44,7 +69,22 @@ def fetch_housing_data(housing_url: str, housing_path: str):
     os.remove(tgz_path)
 
 
-def stratified_shuffle_split(base_df: pd.DataFrame):
+def stratified_shuffle_split(
+    base_df: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Does stratified shuffle split on "income_cat" attribute of housing data.
+
+    Parameters
+    ----------
+    base_df : pd.DataFrame
+        The dataframe to be split.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.DataFrame]
+        [train_dataset, test_dataset]
+    """
     base_df["income_cat"] = pd.cut(
         base_df["median_income"],
         bins=[0.0, 1.5, 3.0, 4.5, 6.0, np.inf],
@@ -59,10 +99,30 @@ def stratified_shuffle_split(base_df: pd.DataFrame):
     for set_ in (strat_test_set, strat_train_set):
         set_.drop("income_cat", axis=1, inplace=True)
 
-    return strat_train_set, strat_test_set
+    return (strat_train_set, strat_test_set)
 
 
-def pre_process_data(df: pd.DataFrame, imputer: SimpleImputer = None):
+def pre_process_data(
+    df: pd.DataFrame, imputer: SimpleImputer = None
+) -> tuple[pd.DataFrame, SimpleImputer]:
+    """
+    Preprocesses the given dataframe. Imputes missing values with median.
+    Replaces categorical column "ocean_proximity" with onehot dummy variables.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe to preprocess.
+    imputer : SimpleImputer, optional
+        Imputer that imputes missing values, by default None.
+        If None, new imputer is created and fit to the given dataframe.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, SimpleImputer]
+        Index 0 is the preprocessed dataframe.
+        Index 1 is the SimpleImputer passed or fit on the dataframe if None is passed.
+    """
     df = pd.get_dummies(df, columns=["ocean_proximity"])
 
     if imputer is None:
@@ -76,10 +136,21 @@ def pre_process_data(df: pd.DataFrame, imputer: SimpleImputer = None):
     df["bedrooms_per_room"] = df["total_bedrooms"] / df["total_rooms"]
     df["population_per_household"] = df["population"] / df["households"]
 
-    return df, imputer
+    return (df, imputer)
 
 
-def run(args: Namespace, logger: Logger):
+def run(args: Namespace, logger: Logger) -> None:
+    """
+    Does all the ingesting work (fetching, splitting, preprocessing).
+    Gets called if this module is run standalone.
+
+    Parameters
+    ----------
+    args : Namespace
+        Commandline arguments from parse_args.
+    logger : Logger
+        Logger to log the state while running.
+    """
     DOWNLOAD_ROOT = (
         "https://raw.githubusercontent.com/ageron/handson-ml/master/"
     )
