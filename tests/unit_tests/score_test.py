@@ -46,18 +46,3 @@ def test_score():
     models = score.load_models(args.models)
     scores = models[0].score(X, y)
     assert score.score_model(models[0], X, y, args)["R2 score"] == scores
-
-
-def test_run(caplog):
-    """
-    Tests run function.
-
-    Parameters
-    ----------
-    caplog
-        Logfile.
-    """
-    score.run(args, logger)
-    assert "LinearRegression" in caplog.text
-    assert "DecisionTreeRegressor" in caplog.text
-    assert "RandomForestRegressor" in caplog.text

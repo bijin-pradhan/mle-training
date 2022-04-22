@@ -59,8 +59,7 @@ def parse_args() -> Namespace:
 
 
 def load_data(path: str) -> tuple[pd.DataFrame, pd.Series]:
-    """
-    Loads dataset and splits features and labels.
+    """Loads dataset and splits features and labels.
 
     Parameters
     ----------
@@ -80,8 +79,7 @@ def load_data(path: str) -> tuple[pd.DataFrame, pd.Series]:
 
 
 def load_models(path: str) -> list[sklearn.base.BaseEstimator]:
-    """
-    Loads models from given directory path.
+    """Loads models from given directory path.
 
     Parameters
     ----------
@@ -110,8 +108,7 @@ def score_model(
     y: pd.Series,
     args: Namespace,
 ) -> dict:
-    """
-    Scores given model on given data.
+    """Scores given model on given data.
 
     Parameters
     ----------
@@ -146,8 +143,7 @@ def score_model(
 
 
 def run(args: Namespace, logger: Logger) -> None:
-    """
-    Runs the whole scoring process according to the given commandline arguments.
+    """Runs the whole scoring process according to the given commandline arguments.
 
     Parameters
     ----------

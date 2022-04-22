@@ -55,8 +55,7 @@ def parse_args() -> Namespace:
 
 
 def load_data(path: str) -> tuple[pd.DataFrame, pd.Series]:
-    """
-    Loads dataset and splits features and labels.
+    """Loads dataset and splits features and labels.
 
     Parameters
     ----------
@@ -76,16 +75,15 @@ def load_data(path: str) -> tuple[pd.DataFrame, pd.Series]:
 
 
 def save_model(
-    model: sklearn.base.BaseEstimator, path: str
+    model: sklearn.base.BaseEstimator, dir: str
 ) -> tuple[str, str]:
-    """
-    Saves the given model in given directory as pickle file.
+    """Saves the given model in given directory as pickle file.
 
     Parameters
     ----------
     model : sklearn.base.BaseEstimator
         Estimator to save.
-    path : str
+    dir : str
         Directory to save in.
 
     Returns
@@ -94,16 +92,17 @@ def save_model(
         Index 0 is the name of the model.
         Index 1 is the path it is saved in.
     """
+    os.makedirs(dir, exist_ok=True)
     model_name = type(model).__name__
-    path = os.path.join(path, f"{model_name}.pkl")
+
+    path = os.path.join(dir, f"{model_name}.pkl")
     with open(path, "wb") as file:
         pickle.dump(model, file)
     return (model_name, path)
 
 
 def run(args: Namespace, logger: Logger) -> None:
-    """
-    Runs the whole training process according to given commandline arguments.
+    """Runs the whole training process according to given commandline arguments.
 
     Parameters
     ----------

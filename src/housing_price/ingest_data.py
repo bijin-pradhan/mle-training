@@ -50,8 +50,7 @@ def parse_args() -> Namespace:
 
 
 def fetch_housing_data(housing_url: str, housing_path: str) -> None:
-    """
-    Function to download and extract housing data.
+    """Function to download and extract housing data.
 
     Parameters
     ----------
@@ -72,8 +71,7 @@ def fetch_housing_data(housing_url: str, housing_path: str) -> None:
 def stratified_shuffle_split(
     base_df: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Does stratified shuffle split on "income_cat" attribute of housing data.
+    """Does stratified shuffle split on "income_cat" attribute of housing data.
 
     Parameters
     ----------
@@ -105,8 +103,7 @@ def stratified_shuffle_split(
 def pre_process_data(
     df: pd.DataFrame, imputer: SimpleImputer = None
 ) -> tuple[pd.DataFrame, SimpleImputer]:
-    """
-    Preprocesses the given dataframe. Imputes missing values with median.
+    """Preprocesses the given dataframe. Imputes missing values with median.
     Replaces categorical column "ocean_proximity" with onehot dummy variables.
 
     Parameters
@@ -140,8 +137,7 @@ def pre_process_data(
 
 
 def run(args: Namespace, logger: Logger) -> None:
-    """
-    Does all the ingesting work (fetching, splitting, preprocessing).
+    """Does all the ingesting work (fetching, splitting, preprocessing).
     Gets called if this module is run standalone.
 
     Parameters
@@ -166,6 +162,9 @@ def run(args: Namespace, logger: Logger) -> None:
     train_set, imputer = pre_process_data(train_set)
     test_set, _ = pre_process_data(test_set, imputer)
     logger.debug("Preprocessing finished.")
+
+    logger.debug("Saving datasets.")
+    os.makedirs(args.processed, exist_ok=True)
 
     train_path = os.path.join(args.processed, "housing_train.csv")
     train_set.to_csv(train_path)

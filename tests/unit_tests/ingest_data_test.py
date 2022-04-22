@@ -53,14 +53,17 @@ def test_preprocess():
     train_set, test_set = data.stratified_shuffle_split(housing_df)
     train_set, imputer = data.pre_process_data(train_set)
     test_set, _ = data.pre_process_data(test_set)
+    cats = housing_df["ocean_proximity"].unique()
+
     assert not train_set.isna().sum().sum()
-
-
-def test_run():
-    """
-    Tests run function.
-    """
-    logger = configure_logger(log_level="DEBUG", console=True)
-    data.run(args, logger)
-    assert os.path.isfile(f"{args.processed}/housing_train.csv")
-    assert os.path.isfile(f"{args.processed}/housing_test.csv")
+    assert "ocean_proximity" not in train_set.columns
+    assert "ocean_proximity" not in test_set.columns
+    assert "rooms_per_household" in train_set.columns
+    assert "rooms_per_household" in test_set.columns
+    assert "population_per_household" in train_set.columns
+    assert "population_per_household" in test_set.columns
+    assert "bedrooms_per_room" in train_set.columns
+    assert "bedrooms_per_room" in test_set.columns
+    for cat in cats:
+        assert f"ocean_proximity_{cat}" in train_set.columns
+        assert f"ocean_proximity_{cat}" in test_set.columns
