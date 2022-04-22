@@ -2,5 +2,5 @@
 .vscode/**
 data/*/*.csv
 dist/**
-housing_price.egg-info/**
+src/housing_price.egg-info/**
 build/**
