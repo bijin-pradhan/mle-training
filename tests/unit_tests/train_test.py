@@ -1,3 +1,6 @@
+"""
+This module contains unit tests for src/housing_price/train.py.
+"""
 import os
 import pickle
 
@@ -11,6 +14,9 @@ logger = configure_logger()
 
 
 def test_parse_args():
+    """
+    Tests parse_args function.
+    """
     assert args.dataset == "data/processed/housing_train.csv"
     assert args.models == "artifacts/"
     assert args.log_level == "DEBUG"
@@ -19,6 +25,9 @@ def test_parse_args():
 
 
 def test_load_data():
+    """
+    Tests load_data function.
+    """
     X, y = train.load_data(args.dataset)
     assert len(X) == len(y)
     assert "median_house_value" not in X.columns
@@ -27,13 +36,19 @@ def test_load_data():
 
 
 def test_save():
+    """
+    Tests save_model function.
+    """
     train.run(args, logger)
     assert os.path.isfile(f"{args.models}/LinearRegression.pkl")
     assert os.path.isfile(f"{args.models}/DecisionTreeRegressor.pkl")
     assert os.path.isfile(f"{args.models}/RandomForestRegressor.pkl")
 
 
-def test_train():
+def test_run():
+    """
+    Tests run function.
+    """
     X, y = train.load_data(args.dataset)
 
     lr = LinearRegression()

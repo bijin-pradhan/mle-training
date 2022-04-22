@@ -1,3 +1,6 @@
+"""
+This module contains unit test for src/housing_price/ingest_data.py
+"""
 import os
 
 import housing_price.ingest_data as data
@@ -11,6 +14,9 @@ HOUSING_URL = DOWNLOAD_ROOT + "datasets/housing/housing.tgz"
 
 
 def test_parse_args():
+    """
+    Tests parse_args function.
+    """
     assert args.raw == "data/raw/"
     assert args.processed == "data/processed/"
     assert args.log_level == "DEBUG"
@@ -19,12 +25,18 @@ def test_parse_args():
 
 
 def test_fetch_data():
+    """
+    Tests fetch_housing_data function.
+    """
     data.fetch_housing_data(HOUSING_URL, HOUSING_PATH)
     assert not os.path.isfile(f"{args.raw}/housing.tgz")
     assert os.path.isfile(f"{args.raw}/housing.csv")
 
 
 def test_split():
+    """
+    Tests stratified_shuffle_split function.
+    """
     housing_df = pd.read_csv(f"{args.raw}/housing.csv")
     train_set, test_set = data.stratified_shuffle_split(housing_df)
     assert len(train_set) == len(housing_df) * 0.8
@@ -34,6 +46,9 @@ def test_split():
 
 
 def test_preprocess():
+    """
+    Tests pre_process_data function.
+    """
     housing_df = pd.read_csv(f"{args.raw}/housing.csv")
     train_set, test_set = data.stratified_shuffle_split(housing_df)
     train_set, imputer = data.pre_process_data(train_set)
@@ -42,6 +57,9 @@ def test_preprocess():
 
 
 def test_run():
+    """
+    Tests run function.
+    """
     logger = configure_logger(log_level="DEBUG", console=True)
     data.run(args, logger)
     assert os.path.isfile(f"{args.processed}/housing_train.csv")
