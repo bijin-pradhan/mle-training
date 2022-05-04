@@ -12,3 +12,6 @@ RUN cd mle-training \
     && conda run -n housing pytest tests/functional_tests/
 
 CMD ["/bin/bash"]
+
+COPY entrypoint.sh .
+ENTRYPOINT [ "./entrypoint.sh" ]
