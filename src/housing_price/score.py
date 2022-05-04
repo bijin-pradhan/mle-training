@@ -92,6 +92,7 @@ def load_models(path: str) -> list[sklearn.base.BaseEstimator]:
         List of models loaded from pkl files in directory.
     """
     paths = glob(f"{path}/*.pkl")
+    paths = sorted(paths)
     models = []
 
     for path in paths:
